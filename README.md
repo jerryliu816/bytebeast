@@ -2,6 +2,14 @@
 
 A device-centric virtual pet that reacts to the real world via onboard sensors, shows its mood and evolution with OpenMoji emojis on a triple-screen LCD HAT, and can interact with nearby pets.
 
+## Hardware Photos
+
+![ByteBeast Hardware - Front View](docs/IMG_5764.jpg)
+*ByteBeast running on Raspberry Pi Zero 2W with triple LCD display showing live emoji interface*
+
+![ByteBeast Hardware - Sensor HAT Details](docs/IMG_5760.JPG)
+*Sensor HAT showing I2C pinout and environmental sensor specifications*
+
 ## Overview
 
 ByteBeast is a Tamagotchi-style virtual pet designed to run on Raspberry Pi Zero 2W with multiple HAT modules. It features:
@@ -12,12 +20,13 @@ ByteBeast is a Tamagotchi-style virtual pet designed to run on Raspberry Pi Zero
 - **Mood engine** - Rule-based mood inference with 10 different moods
 - **Needs & traits** - Hunger, rest, social, and hygiene needs that drift over time
 - **Power management** - Battery-aware display policies and safe shutdown
-- **Social features** - Basic peer discovery and interaction (MVP)
+- **Social features** - Planned for future implementation
 
 ## Hardware Requirements
 
 ### Raspberry Pi Setup
-- Raspberry Pi Zero 2W running Ubuntu (ARM64) 
+- Raspberry Pi Zero 2W (or compatible models)
+- Raspberry Pi OS or compatible Linux distribution
 - MicroSD card (32GB+ recommended)
 - Power supply with UPS capability
 
@@ -32,20 +41,21 @@ ByteBeast is a Tamagotchi-style virtual pet designed to run on Raspberry Pi Zero
    - INA219 (voltage/current/power monitoring)
    - Battery management and charging
 
-3. **Waveshare Zero LCD HAT (A)** - SPI displays:
-   - Main 1.3" ST7789 (240×240)
-   - Two 0.96" ST7735S (160×80)
-   - 2 tactile buttons
+3. **Waveshare Triple LCD HAT** - SPI displays:
+   - Main 1.3" ST7789 (240×240) center display
+   - Two 0.96" ST7735S (160×80) side displays
+   - 2 tactile buttons for user interaction
 
 ## Software Architecture
 
-### Service Architecture (5 systemd services)
+### Service Architecture (4 systemd services)
 
 1. **bytebeast-sense.service** - Sensor data collection & feature extraction
 2. **bytebeast-state.service** - Mood/needs/evolution engine
 3. **bytebeast-viz.service** - Emoji rendering to LCD displays  
 4. **bytebeast-power.service** - Battery monitoring & power management
-5. **bytebeast-social.service** - Peer discovery (optional, disabled by default)
+
+**Note**: Social features are planned but not yet implemented.
 
 ### Data Flow
 ```
@@ -87,14 +97,14 @@ pip3 install pillow pyyaml
 
 ```bash
 cd ~
-git clone https://github.com/bytebeast/bytebeast.git
+git clone https://github.com/jerryliu816/bytebeast.git
 cd bytebeast
 ```
 
 ### 4. Install Services
 
 ```bash
-./bytebeast/services/install_services.sh
+./services/install_services.sh
 ```
 
 ### 5. Start ByteBeast
@@ -104,7 +114,7 @@ cd bytebeast
 sudo systemctl start bytebeast.target
 
 # Check status
-./bytebeast/services/start_services.sh status
+./services/start_services.sh status
 
 # View logs
 journalctl -u bytebeast-sense.service -f
@@ -123,35 +133,35 @@ python3 demo.py
 
 ```bash
 # Start/stop services  
-./bytebeast/services/start_services.sh start
-./bytebeast/services/start_services.sh stop
+./services/start_services.sh start
+./services/start_services.sh stop
 
 # Test mode (mock sensors/displays)
-./bytebeast/services/start_services.sh start mock
+./services/start_services.sh start mock
 
 # View service status
-./bytebeast/services/start_services.sh status
+./services/start_services.sh status
 
 # View specific service logs
-./bytebeast/services/start_services.sh logs viz
+./services/start_services.sh logs viz
 ```
 
 ### Testing
 
 Run the test suite:
 ```bash
-cd bytebeast/tests
+cd tests
 python3 run_tests.py
 ```
 
 Run day simulation:
 ```bash
-python3 bytebeast/tests/simulate_day.py 24
+python3 tests/simulate_day.py 24
 ```
 
 ## Configuration
 
-Configuration is managed through YAML files in `bytebeast/config/defaults.yaml`.
+Configuration is managed through YAML files in `config/defaults.yaml`.
 
 Key settings:
 ```yaml
@@ -232,24 +242,28 @@ bytebeast/
 ├── state/          # Mood engine, evolution, traits  
 ├── display/        # LCD rendering & emoji management
 ├── power/          # Battery monitoring & power policies
-├── social/         # Peer discovery & encounters
+├── social/         # Peer discovery & encounters (minimal implementation)
 ├── services/       # Systemd service definitions
 ├── config/         # YAML configuration files
-└── tests/          # Unit tests & simulations
+├── tests/          # Unit tests & simulations
+├── environment/    # Environment sensor modules (BME280, ICM20948, etc.)
+├── Sense_HAT_C_Pi/ # Comprehensive sensor HAT with C/Python implementations
+├── UPS_HAT_C/      # Power management with INA219
+└── lib/            # Third-party libraries and GPIO demos
 ```
 
 ### Adding New Features
 
-1. **New Mood Rule**: Edit `bytebeast/state/mood_engine.py` `infer_mood()` method
-2. **New Sensor**: Add to `bytebeast/sensors/manager.py` 
-3. **Display Changes**: Modify `bytebeast/display/manager.py`
-4. **Configuration**: Update `bytebeast/config/defaults.yaml`
+1. **New Mood Rule**: Edit `state/mood_engine.py` `infer_mood()` method
+2. **New Sensor**: Add to `sensors/manager.py` 
+3. **Display Changes**: Modify `display/manager.py`
+4. **Configuration**: Update `config/defaults.yaml`
 
 ### Testing
 
-- Unit tests: `python3 bytebeast/tests/run_tests.py`
-- Integration tests: `python3 bytebeast/tests/test_integration.py`
-- Day simulation: `python3 bytebeast/tests/simulate_day.py`
+- Unit tests: `python3 tests/run_tests.py`
+- Integration tests: `python3 tests/test_integration.py`
+- Day simulation: `python3 tests/simulate_day.py`
 - Live demo: `python3 demo.py`
 
 ## Troubleshooting
@@ -259,14 +273,14 @@ bytebeast/
 **Services won't start:**
 ```bash
 # Check hardware permissions
-sudo usermod -a -G spi,gpio,i2c pi
+sudo usermod -a -G spi,gpio,i2c $USER
 sudo systemctl restart bytebeast.target
 ```
 
 **Display not working:**
 ```bash
 # Test in mock mode first
-./bytebeast/services/start_services.sh start mock
+./services/start_services.sh start mock
 
 # Check SPI is enabled
 ls /dev/spidev*
@@ -302,13 +316,24 @@ journalctl -u bytebeast-sense.service -f --since "1 hour ago"
 
 ## License
 
-MIT License - see LICENSE file for details.
+AGPL-3.0 License - see LICENSE file for details.
 
 ## Credits
 
-- **OpenMoji** - Emoji artwork (CC BY-SA 4.0)
-- **Waveshare** - HAT module designs and drivers
-- **Raspberry Pi Foundation** - Hardware platform
+### Open Source Libraries & Dependencies
+
+- **[OpenMoji](https://openmoji.org/)** - Open source emoji graphics (CC BY-SA 4.0)
+- **[lgpio/rgpio](https://github.com/joan2937/lg)** - Modern GPIO library for Linux (Unlicense)
+- **[bcm2835](https://www.airspayce.com/mikem/bcm2835/)** - Broadcom BCM 2835 library (GPL)
+- **[WiringPi](http://wiringpi.com/)** - GPIO interface library (LGPL)
+- **[Pillow (PIL)](https://pillow.readthedocs.io/)** - Python Imaging Library (HPND)
+- **[NumPy](https://numpy.org/)** - Numerical computing library (BSD)
+- **Python Libraries**: smbus (GPL), spidev (GPL), gpiozero (BSD), RPi.GPIO (MIT)
+
+### Hardware & Platform
+
+- **[Waveshare](https://www.waveshare.com/)** - HAT module designs and hardware drivers
+- **[Raspberry Pi Foundation](https://www.raspberrypi.org/)** - Single-board computer platform
 
 ---
 
