@@ -1,0 +1,86 @@
+# ByteBeast Default Configuration
+
+# System settings
+mock_mode: false                    # Set to true for testing without hardware
+
+# Display settings
+display:
+  fps_active: 20              # Active mode frame rate
+  fps_idle: 3                 # Idle mode frame rate
+  battery_dim_pct: 20         # Dim display below this battery %
+  battery_static_pct: 10      # Static frames below this battery %
+  battery_shutdown_pct: 5     # Safe shutdown below this battery %
+  main_emoji_size: 128        # Main emoji size in pixels
+  badge_size: 32              # Badge emoji size in pixels
+
+# Evolution system
+evolution:
+  window_hours: 48            # Rolling window for path calculation
+  stage_goal: 1.0            # XP needed for stage progression
+  hysteresis_hours: 6        # Minimum time before path switching
+  progression_rate: 0.01     # Base progression per tick
+
+# Mood thresholds
+thresholds:
+  lux_bright: 8000.0         # Bright light threshold (lux)
+  lux_dark: 50.0             # Dark threshold (lux)
+  temp_hot: 30.0             # Hot temperature threshold (°C)
+  temp_cold: 10.0            # Cold temperature threshold (°C)
+  motion_active_g: 0.2       # Active motion threshold (g RMS)
+  motion_shake_g: 1.0        # Shake detection threshold (g)
+  pressure_stable: 2.0       # Stable pressure change (hPa/hour)
+
+# Needs system
+needs:
+  drift_rate: 0.1            # Needs drift per hour (0-100 scale)
+  hunger_base: 1.0           # Base hunger drift rate
+  rest_base: 0.8             # Base rest need drift
+  social_base: 0.6           # Base social need drift
+  hygiene_base: 0.4          # Base hygiene need drift
+  
+# Sensor sampling rates (Hz)
+sensors:
+  imu_rate: 10               # IMU sampling rate
+  environmental_rate: 1      # BME280, light sensors
+  power_rate: 2              # INA219 power monitoring
+  wifi_scan_interval: 30     # WiFi scan interval (seconds)
+
+# Power management
+power:
+  low_voltage: 3.3           # Low voltage warning (V)
+  critical_voltage: 3.0      # Critical voltage shutdown (V)
+  idle_timeout: 300          # Idle timeout (seconds)
+  
+# Social system
+social:
+  enabled: false             # Enable social features
+  encounter_cooldown: 300    # Cooldown between encounters (seconds)
+  max_encounters_day: 10     # Maximum encounters per day
+  peer_timeout: 3600         # Peer discovery timeout (seconds)
+
+# Storage limits
+storage:
+  sensor_history_days: 7     # Days to keep sensor data
+  event_history_days: 30     # Days to keep event data
+  max_state_snapshots: 100   # Maximum state snapshots to keep
+  cleanup_interval: 3600     # Cleanup interval (seconds)
+
+# MQTT communication
+mqtt:
+  host: localhost
+  port: 1883
+  topics:
+    sense_features: "bytebeast/sense/features"
+    state_snapshot: "bytebeast/state/snapshot"
+    state_mood: "bytebeast/state/mood"
+    state_evolution: "bytebeast/state/evolution"
+    power_telemetry: "bytebeast/power/telemetry"
+    social_encounter: "bytebeast/social/encounter"
+    display_frame: "bytebeast/display/frame"
+
+# Logging
+logging:
+  level: INFO
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  max_file_size: 10485760    # 10MB
+  backup_count: 5

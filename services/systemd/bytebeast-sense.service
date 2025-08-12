@@ -1,0 +1,34 @@
+[Unit]
+Description=ByteBeast Sensor Service
+Documentation=https://github.com/bytebeast/bytebeast
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=jerry
+Group=jerry
+WorkingDirectory=/home/jerry/dev/bytebeast
+ExecStart=/usr/bin/python3 /home/jerry/dev/bytebeast/services/sense_service.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment=PYTHONPATH=/home/jerry/dev/bytebeast
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/jerry/bytebeast.db /tmp
+
+# Resource limits
+MemoryLimit=256M
+CPUQuota=25%
+
+[Install]
+WantedBy=multi-user.target
+EOF < /dev/null

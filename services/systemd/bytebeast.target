@@ -1,0 +1,9 @@
+[Unit]
+Description=ByteBeast Virtual Pet System
+Documentation=https://github.com/bytebeast/bytebeast
+Wants=bytebeast-sense.service bytebeast-state.service bytebeast-viz.service bytebeast-power.service
+After=bytebeast-sense.service bytebeast-state.service bytebeast-viz.service bytebeast-power.service
+
+[Install]
+WantedBy=multi-user.target
+EOF < /dev/null

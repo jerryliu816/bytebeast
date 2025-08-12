@@ -1,0 +1,37 @@
+[Unit]
+Description=ByteBeast Power Management Service
+Documentation=https://github.com/bytebeast/bytebeast
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=jerry
+Group=jerry
+WorkingDirectory=/home/jerry/dev/bytebeast
+ExecStart=/usr/bin/python3 /home/jerry/dev/bytebeast/services/power_service.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment=PYTHONPATH=/home/jerry/dev/bytebeast
+
+# Security - Needs shutdown privileges
+NoNewPrivileges=false
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/jerry/bytebeast.db /tmp
+
+# Resource limits
+MemoryLimit=256M
+CPUQuota=25%
+
+# Hardware and system access
+SupplementaryGroups=i2c sudo
+
+[Install]
+WantedBy=multi-user.target
+EOF < /dev/null

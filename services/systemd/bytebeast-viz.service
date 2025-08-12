@@ -1,0 +1,37 @@
+[Unit]
+Description=ByteBeast Visualization Service
+Documentation=https://github.com/bytebeast/bytebeast
+After=bytebeast-state.service
+Wants=bytebeast-state.service
+
+[Service]
+Type=simple
+User=jerry
+Group=jerry
+WorkingDirectory=/home/jerry/dev/bytebeast
+ExecStart=/usr/bin/python3 /home/jerry/dev/bytebeast/services/viz_service.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment=PYTHONPATH=/home/jerry/dev/bytebeast
+
+# Security - Less restrictive for display hardware access
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/jerry/bytebeast.db /tmp /dev/spidev* /dev/gpiomem
+
+# Resource limits
+MemoryLimit=512M
+CPUQuota=50%
+
+# Hardware access
+SupplementaryGroups=spi gpio
+
+[Install]
+WantedBy=multi-user.target
+EOF < /dev/null
